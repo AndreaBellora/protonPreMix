@@ -3,6 +3,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
 
 <use name="FWCore/FWLite"/>
 <use name="DataFormats/FWLite"/>
@@ -11,8 +12,6 @@
 <use name="DataFormats/CTPPSDetId"/>
 <use name="DataFormats/CTPPSReco"/>
 
-<use name="protonPreMix/protonPreMix"/>
-
-<library name="protonPreMixprotonPremixPlugins" file="*.cc">
-	<flags EDM_PLUGIN="1"/>
-</library>
+<export>
+	<lib name="1"/>
+</export>

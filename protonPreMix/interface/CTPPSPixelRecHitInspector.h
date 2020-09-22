@@ -19,7 +19,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 class CTPPSPixelRecHitInspector : public edm::one::EDAnalyzer<> {
 
 public:

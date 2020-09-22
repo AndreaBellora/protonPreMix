@@ -3,8 +3,8 @@
  * Author: A. Bellora - INFN Torino
  *
  *************************************************************/
-#ifndef protonPreMix_CTPPSPixelPreMixProducer_H
-#define protonPreMix_CTPPSPixelPreMixProducer_H
+#ifndef protonPreMix_CTPPSPreMixProducer_H
+#define protonPreMix_CTPPSPreMixProducer_H
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -17,12 +17,12 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-class CTPPSPixelPreMixProducer : public edm::stream::EDProducer<> {
+class CTPPSPreMixProducer : public edm::stream::EDProducer<> {
 
 public:
-  explicit CTPPSPixelPreMixProducer(const edm::ParameterSet &param);
+  explicit CTPPSPreMixProducer(const edm::ParameterSet &param);
 
-  ~CTPPSPixelPreMixProducer() override;
+  ~CTPPSPreMixProducer() override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
