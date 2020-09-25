@@ -20,9 +20,10 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/eos/project-c/ctpps/subsystems/Pixel/RPixTracking/EfficiencyCalculation2017/ReRecoEras_CMSSW_10_6_10/SingleElectron/ctpps_2017B_pixelefficiency_singleele/200423_112331/0000/ReReco_2017B_1.root',)
 )
 
-process.inspector = cms.EDAnalyzer('CTPPSPixelRecHitInspector',
-    recHitTag = cms.untracked.InputTag("ctppsPixelRecHits", ""),
-    initialMsg = cms.untracked.string("Running CTPPSPixelRecHitInspector!")
+process.inspector = cms.EDAnalyzer('CTPPSRecHitInspector',
+    pixelRecHitTag = cms.untracked.InputTag("ctppsPixelRecHits", ""),
+    stripsRecHitTag = cms.untracked.InputTag("totemRPRecHitProducer", ""),
+    initialMsg = cms.untracked.string("Running CTPPSRecHitInspector!")
 )
 
 process.p = cms.Path(process.inspector)
