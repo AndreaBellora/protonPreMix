@@ -24,13 +24,13 @@ public:
                edm::InputTag stripsTag);
   ~PUFileReader() {}
   void PrintEvent(int i);
-  inline int GetEntries() { return ev_.size(); };
+  inline int GetEntries() { return ev_->size(); };
   edm::DetSetVector<CTPPSPixelRecHit> getPixelRecHitsDsv(int i);
   edm::DetSetVector<TotemRPRecHit> getStripsRecHitsDsv(int i);
 
 private:
   std::vector<std::string> fileNames_;
-  fwlite::ChainEvent ev_;
+  std::unique_ptr<fwlite::ChainEvent> ev_;
   
   edm::InputTag pixelTag_;
   edm::InputTag stripsTag_;

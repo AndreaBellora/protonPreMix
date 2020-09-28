@@ -4,20 +4,28 @@ using namespace std;
 
 PUFileReader::PUFileReader(vector<string> fileNames, edm::InputTag pixelTag,
                            edm::InputTag stripsTag)
-    : fileNames_(fileNames), ev_(fwlite::ChainEvent(fileNames_)),
-      pixelTag_(pixelTag), stripsTag_(stripsTag),
+    : fileNames_(fileNames), pixelTag_(pixelTag), stripsTag_(stripsTag),
       pixelLabel_(pixelTag_.label()), pixelInstance_(pixelTag_.instance()),
       stripsLabel_(stripsTag_.label()), stripsInstance_(stripsTag_.instance()) {
+
+  for (auto &fileName : fileNames_) {
+    if (fileName.find("file:") == string::npos &&
+        fileName.find("root:") == string::npos) {
+      fileName = "root://cms-xrd-global.cern.ch//" + fileName;
+    }
+  }
+  ev_ = make_unique<fwlite::ChainEvent>(fileNames_);
+  
 }
 
 void PUFileReader::PrintEvent(int i) {
   fwlite::Handle<edm::DetSetVector<CTPPSPixelRecHit>> pixelRecHits;
   fwlite::Handle<edm::DetSetVector<TotemRPRecHit>> stripsRecHits;
 
-  if (ev_.to(i)) {
-    ev_.eventAuxiliary().write(cout);
+  if (ev_->to(i)) {
+    ev_->eventAuxiliary().write(cout);
     cout << endl;
-    pixelRecHits.getByLabel(ev_, pixelLabel_.data(), pixelInstance_.data());
+    pixelRecHits.getByLabel(*ev_, pixelLabel_.data(), pixelInstance_.data());
     edm::DetSetVector<CTPPSPixelRecHit> pixelRecHitsDsv = *(pixelRecHits.ptr());
     // cout << "Size: " << pixelRecHits.ptr()->size() << endl;
     for (auto pixelRecHitsDs : pixelRecHitsDsv) {
@@ -35,7 +43,7 @@ void PUFileReader::PrintEvent(int i) {
       cout << endl;
     }
 
-    stripsRecHits.getByLabel(ev_, stripsLabel_.data(), stripsInstance_.data());
+    stripsRecHits.getByLabel(*ev_, stripsLabel_.data(), stripsInstance_.data());
     edm::DetSetVector<TotemRPRecHit> stripsRecHitsDsv = *(stripsRecHits.ptr());
     // cout << "Size: " << pixelRecHits.ptr()->size() << endl;
     for (auto stripsRecHitsDs : stripsRecHitsDsv) {
@@ -60,8 +68,8 @@ edm::DetSetVector<CTPPSPixelRecHit> PUFileReader::getPixelRecHitsDsv(int i) {
 
   fwlite::Handle<edm::DetSetVector<CTPPSPixelRecHit>> pixelRecHits;
 
-  if (ev_.to(i)) {
-    pixelRecHits.getByLabel(ev_, pixelLabel_.data(), pixelInstance_.data());
+  if (ev_->to(i)) {
+    pixelRecHits.getByLabel(*ev_, pixelLabel_.data(), pixelInstance_.data());
     edm::DetSetVector<CTPPSPixelRecHit> pixelRecHitsDsv = *(pixelRecHits.ptr());
     return pixelRecHitsDsv;
   } else {
@@ -74,8 +82,8 @@ edm::DetSetVector<TotemRPRecHit> PUFileReader::getStripsRecHitsDsv(int i) {
 
   fwlite::Handle<edm::DetSetVector<TotemRPRecHit>> stripsRecHits;
 
-  if (ev_.to(i)) {
-    stripsRecHits.getByLabel(ev_, stripsLabel_.data(), stripsInstance_.data());
+  if (ev_->to(i)) {
+    stripsRecHits.getByLabel(*ev_, stripsLabel_.data(), stripsInstance_.data());
     edm::DetSetVector<TotemRPRecHit> stripsRecHitsDsv = *(stripsRecHits.ptr());
     return stripsRecHitsDsv;
   } else {

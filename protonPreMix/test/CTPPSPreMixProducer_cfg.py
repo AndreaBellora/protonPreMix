@@ -43,8 +43,8 @@ process.preMixProducer = cms.EDProducer('CTPPSPreMixProducer',
 	Sim_TotemRPRecHitTag = cms.InputTag("totemRPRecHitProducer", ""),
 	PU_TotemRPRecHitTag = cms.InputTag("totemRPRecHitProducer", ""),
 	PUFilesList = cms.vstring(
-		# "file:/eos/project-c/ctpps/subsystems/Pixel/RPixTracking/EfficiencyCalculation2017/ReRecoEras_CMSSW_10_6_10/SingleElectron/ctpps_2017B_pixelefficiency_singleele/200423_112331/0000/ReReco_2017B_1.root",
-		"root://cms-xrd-global.cern.ch//store/data/Run2018A/EGamma/AOD/12Nov2019_UL2018-v2/710003/972DEEB4-9368-7F4B-A06C-E4D808DD9DEC.root"
+		"file:/eos/project-c/ctpps/subsystems/Pixel/RPixTracking/EfficiencyCalculation2017/ReRecoEras_CMSSW_10_6_10/SingleElectron/ctpps_2017B_pixelefficiency_singleele/200423_112331/0000/ReReco_2017B_1.root",
+		# "/store/data/Run2018A/EGamma/AOD/12Nov2019_UL2018-v2/710003/972DEEB4-9368-7F4B-A06C-E4D808DD9DEC.root",
 		)
 )
 
