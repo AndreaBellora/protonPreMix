@@ -41,6 +41,8 @@ public:
 private:
   int verbosity_;
 
+  bool includePixels_,includeStrips_;
+
   edm::InputTag simPixelSrc_, puPixelSrc_;
   edm::InputTag simStripsSrc_, puStripsSrc_;
 

@@ -1,24 +1,29 @@
 #include "protonPreMix/protonPreMix/interface/CTPPSPreMixProducer.h"
 
 CTPPSPreMixProducer::CTPPSPreMixProducer(const edm::ParameterSet &conf)
-    : puFileReader_(conf.getParameter<std::vector<std::string>>("PUFilesList"),
+    : verbosity_(conf.getUntrackedParameter<int>("Verbosity")),
+      includePixels_(conf.getParameter<bool>("includePixels")),
+      includeStrips_(conf.getParameter<bool>("includeStrips")),
+      simPixelSrc_(conf.getParameter<edm::InputTag>("Sim_CTPPSPixelRecHitTag")),
+
+      simStripsSrc_(conf.getParameter<edm::InputTag>("Sim_TotemRPRecHitTag")),
+      puFileReader_(conf.getParameter<std::vector<std::string>>("PUFilesList"),
                     puPixelSrc_ = conf.getParameter<edm::InputTag>(
                         "PU_CTPPSPixelRecHitTag"),
                     puStripsSrc_ = conf.getParameter<edm::InputTag>(
-                        "PU_TotemRPRecHitTag")) {
-  simPixelSrc_ = conf.getParameter<edm::InputTag>("Sim_CTPPSPixelRecHitTag");
+                        "PU_TotemRPRecHitTag")),
+      puEntries_(puFileReader_.GetEntries()) {
+  if (includePixels_) {
+    tokenCTPPSPixelRecHit_ =
+        consumes<edm::DetSetVector<CTPPSPixelRecHit>>(simPixelSrc_);
+    produces<edm::DetSetVector<CTPPSPixelRecHit>>();
+  }
+  if (includeStrips_) {
+    tokenTotemRPRecHit_ =
+        consumes<edm::DetSetVector<TotemRPRecHit>>(simStripsSrc_);
+    produces<edm::DetSetVector<TotemRPRecHit>>();
+  }
 
-  simStripsSrc_ = conf.getParameter<edm::InputTag>("Sim_TotemRPRecHitTag");
-  verbosity_ = conf.getUntrackedParameter<int>("Verbosity");
-  tokenCTPPSPixelRecHit_ =
-      consumes<edm::DetSetVector<CTPPSPixelRecHit>>(simPixelSrc_);
-  tokenTotemRPRecHit_ =
-      consumes<edm::DetSetVector<TotemRPRecHit>>(simStripsSrc_);
-
-  produces<edm::DetSetVector<CTPPSPixelRecHit>>("ctppsPixelRecHits");
-  produces<edm::DetSetVector<TotemRPRecHit>>("totemRPRecHits");
-
-  puEntries_ = puFileReader_.GetEntries();
   if (verbosity_ > 0)
     edm::LogInfo("CTPPSPreMixProducer")
         << "PU files contain " << puEntries_ << " events";
@@ -39,6 +44,8 @@ void CTPPSPreMixProducer::fillDescriptions(
                           edm::InputTag("totemRPRecHitProducer"));
   desc.add<edm::InputTag>("PU_TotemRPRecHitTag",
                           edm::InputTag("totemRPRecHitProducer"));
+  desc.add<bool>("includePixels", true);
+  desc.add<bool>("includeStrips", true);
   descriptions.add("CTPPSPreMixProducer", desc);
 }
 
@@ -64,30 +71,33 @@ void CTPPSPreMixProducer::produce(edm::Event &iEvent,
     puFileReader_.PrintEvent(entryNumber);
   }
 
-  edm::Handle<edm::DetSetVector<CTPPSPixelRecHit>> simPixelRpRecHits;
-  iEvent.getByToken(tokenCTPPSPixelRecHit_, simPixelRpRecHits);
-  edm::DetSetVector<CTPPSPixelRecHit> pixelsOutput;
+  if (includePixels_) {
+    edm::Handle<edm::DetSetVector<CTPPSPixelRecHit>> simPixelRpRecHits;
+    iEvent.getByToken(tokenCTPPSPixelRecHit_, simPixelRpRecHits);
+    edm::DetSetVector<CTPPSPixelRecHit> pixelsOutput;
 
-  edm::DetSetVector<CTPPSPixelRecHit> puPixelRpRecHits =
-      puFileReader_.getPixelRecHitsDsv(entryNumber);
+    edm::DetSetVector<CTPPSPixelRecHit> puPixelRpRecHits =
+        puFileReader_.getPixelRecHitsDsv(entryNumber);
 
-  mergePixels(*simPixelRpRecHits, puPixelRpRecHits, pixelsOutput);
+    mergePixels(*simPixelRpRecHits, puPixelRpRecHits, pixelsOutput);
 
-  iEvent.put(
-      std::make_unique<edm::DetSetVector<CTPPSPixelRecHit>>(pixelsOutput),
-      "ctppsPixelRecHits");
+    iEvent.put(
+        std::make_unique<edm::DetSetVector<CTPPSPixelRecHit>>(pixelsOutput));
+  }
 
-  edm::Handle<edm::DetSetVector<TotemRPRecHit>> simStripsRpRecHits;
-  iEvent.getByToken(tokenTotemRPRecHit_, simStripsRpRecHits);
-  edm::DetSetVector<TotemRPRecHit> stripsOutput;
+  if (includeStrips_) {
+    edm::Handle<edm::DetSetVector<TotemRPRecHit>> simStripsRpRecHits;
+    iEvent.getByToken(tokenTotemRPRecHit_, simStripsRpRecHits);
+    edm::DetSetVector<TotemRPRecHit> stripsOutput;
 
-  edm::DetSetVector<TotemRPRecHit> puStripsRpRecHits =
-      puFileReader_.getStripsRecHitsDsv(entryNumber);
+    edm::DetSetVector<TotemRPRecHit> puStripsRpRecHits =
+        puFileReader_.getStripsRecHitsDsv(entryNumber);
 
-  mergeStrips(*simStripsRpRecHits, puStripsRpRecHits, stripsOutput);
+    mergeStrips(*simStripsRpRecHits, puStripsRpRecHits, stripsOutput);
 
-  iEvent.put(std::make_unique<edm::DetSetVector<TotemRPRecHit>>(stripsOutput),
-             "totemRPRecHits");
+    iEvent.put(
+        std::make_unique<edm::DetSetVector<TotemRPRecHit>>(stripsOutput));
+  }
 }
 
 void CTPPSPreMixProducer::mergePixels(
