@@ -10,8 +10,8 @@ process = cms.Process('TEST', eras.Run2_2017, run2_miniAOD_UL)                  
 
 process.load('Configuration.EventContent.EventContent_cff')
 
-import Validation.CTPPS.simu_config.year_2016_preTS2_cff as config               # !!! to adapt depending on the year
-process.load("Validation.CTPPS.simu_config.year_2016_preTS2_cff")                # !!! to adapt depending on the y
+import Validation.CTPPS.simu_config.year_2017_preTS2_cff as config               # !!! to adapt depending on the year
+process.load("Validation.CTPPS.simu_config.year_2017_preTS2_cff")                # !!! to adapt depending on the y
 config.SetDefaults(process)
 
 # override LHCInfo source
