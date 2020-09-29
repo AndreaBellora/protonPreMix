@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 

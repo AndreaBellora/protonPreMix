@@ -71,6 +71,19 @@ from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 (eras.ctpps_2016 & ~ctpps_2017 & ~ctpps_2018).toModify(process, RemoveModules)
 
+
+# track distribution plotter
+process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
+  tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
+
+  rpId_45_F = process.rpIds.rp_45_F,
+  rpId_45_N = process.rpIds.rp_45_N,
+  rpId_56_N = process.rpIds.rp_56_N,
+  rpId_56_F = process.rpIds.rp_56_F,
+
+  outputFile = cms.string("output_tracks.root")
+)
+
 # reconstruction plotter (analysis example)
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
   tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
@@ -84,8 +97,10 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
   association_cuts_45 = process.ctppsProtons.association_cuts_45,
   association_cuts_56 = process.ctppsProtons.association_cuts_56,
 
-  outputFile = cms.string("output.root")
+  outputFile = cms.string("output_protons.root")
 )
+
+
 
 # reconstruction sequence
 process.recoStep = cms.Sequence(
@@ -143,6 +158,7 @@ process.path = cms.Path(
   * process.recoStep
 
   # example of analysis
+  * process.ctppsTrackDistributionPlotter
   * process.ctppsProtonReconstructionPlotter
 )
 

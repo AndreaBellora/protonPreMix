@@ -15,7 +15,6 @@ PUFileReader::PUFileReader(vector<string> fileNames, edm::InputTag pixelTag,
     }
   }
   ev_ = make_unique<fwlite::ChainEvent>(fileNames_);
-  
 }
 
 void PUFileReader::PrintEvent(int i) {
@@ -73,7 +72,7 @@ edm::DetSetVector<CTPPSPixelRecHit> PUFileReader::getPixelRecHitsDsv(int i) {
     edm::DetSetVector<CTPPSPixelRecHit> pixelRecHitsDsv = *(pixelRecHits.ptr());
     return pixelRecHitsDsv;
   } else {
-    cout << "WARNING: this event does not exist in the PU files" << endl;
+    edm::LogWarning("CTPPSPreMixProducer") << "Event not found in the PU files";
     return edm::DetSetVector<CTPPSPixelRecHit>();
   }
 }
