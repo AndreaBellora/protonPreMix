@@ -59,8 +59,7 @@ void PUFileReader::PrintEvent(int i) {
       }
       cout << endl;
     }
-  } else
-    cout << "WARNING: this event does not exist in the PU files" << endl;
+  } 
 }
 
 edm::DetSetVector<CTPPSPixelRecHit> PUFileReader::getPixelRecHitsDsv(int i) {
@@ -86,7 +85,7 @@ edm::DetSetVector<TotemRPRecHit> PUFileReader::getStripsRecHitsDsv(int i) {
     edm::DetSetVector<TotemRPRecHit> stripsRecHitsDsv = *(stripsRecHits.ptr());
     return stripsRecHitsDsv;
   } else {
-    cout << "WARNING: this event does not exist in the PU files" << endl;
+    edm::LogWarning("CTPPSPreMixProducer") << "Event not found in the PU files";
     return edm::DetSetVector<TotemRPRecHit>();
   }
 }

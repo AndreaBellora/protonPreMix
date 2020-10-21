@@ -66,8 +66,7 @@ void CTPPSPreMixProducer::produce(edm::Event &iEvent,
 
   if (verbosity_ > 0) {
     edm::LogInfo("CTPPSPreMixProducer")
-        << "Picking PU event number: " << entryNumber << "\n"
-        << "Content";
+        << "Picking PU event number: " << entryNumber;
     puFileReader_.PrintEvent(entryNumber);
   }
 
