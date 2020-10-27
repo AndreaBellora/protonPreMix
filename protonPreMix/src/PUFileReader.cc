@@ -71,7 +71,7 @@ edm::DetSetVector<CTPPSPixelRecHit> PUFileReader::getPixelRecHitsDsv(int i) {
     edm::DetSetVector<CTPPSPixelRecHit> pixelRecHitsDsv = *(pixelRecHits.ptr());
     return pixelRecHitsDsv;
   } else {
-    edm::LogWarning("CTPPSPreMixProducer") << "Event not found in the PU files";
+    edm::LogWarning("PPS") << "Event not found in the PU files";
     return edm::DetSetVector<CTPPSPixelRecHit>();
   }
 }
@@ -85,7 +85,7 @@ edm::DetSetVector<TotemRPRecHit> PUFileReader::getStripsRecHitsDsv(int i) {
     edm::DetSetVector<TotemRPRecHit> stripsRecHitsDsv = *(stripsRecHits.ptr());
     return stripsRecHitsDsv;
   } else {
-    edm::LogWarning("CTPPSPreMixProducer") << "Event not found in the PU files";
+    edm::LogWarning("PPS") << "Event not found in the PU files";
     return edm::DetSetVector<TotemRPRecHit>();
   }
 }

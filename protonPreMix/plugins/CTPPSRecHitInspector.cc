@@ -13,7 +13,7 @@ void CTPPSRecHitInspector::analyze(const edm::Event &iEvent,
                                         const edm::EventSetup &iSetup) {
   using namespace edm;
 
-  LogInfo("CTPPSRecHitInspector") << initialMsg_;
+  LogInfo("PPS") << initialMsg_;
 
   Handle<edm::DetSetVector<CTPPSPixelRecHit>> pixelRecHits;
   iEvent.getByToken(pixelRecHitToken_, pixelRecHits);
@@ -70,7 +70,7 @@ void CTPPSRecHitInspector::analyze(const edm::Event &iEvent,
     planeSummary.clear();
   }
 
-  LogInfo("CTPPSRecHitInspector") << detectorSummary;
+  LogInfo("PPS") << detectorSummary;
 }
 
 void CTPPSRecHitInspector::fillDescriptions(

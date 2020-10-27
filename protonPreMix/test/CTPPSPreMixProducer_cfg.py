@@ -36,7 +36,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     )
 )
 
-process.preMixProducer = cms.EDProducer('CTPPSPreMixProducer',
+process.preMixProducer = cms.EDProducer('ctppsPreMixProducer',
 	Verbosity = cms.untracked.int32(1),
 	Sim_CTPPSPixelRecHitTag = cms.InputTag("ctppsPixelRecHits", ""),
 	PU_CTPPSPixelRecHitTag = cms.InputTag("ctppsPixelRecHits", ""),

@@ -38,24 +38,24 @@ process.simProtonStep = cms.Sequence(
 
 ## PreMix protons
 
-process.load("protonPreMix.protonPreMix.CTPPSPreMixProducer_cfi")
-process.CTPPSPreMixProducer.PUFilesList = cms.vstring(
+process.load("protonPreMix.protonPreMix.ctppsPreMixProducer_cfi")
+process.ctppsPreMixProducer.PUFilesList = cms.vstring(
 	"file:/eos/project-c/ctpps/subsystems/Pixel/RPixTracking/EfficiencyCalculation2017/ReRecoEras_CMSSW_10_6_10/SingleElectron/ctpps_2017B_pixelefficiency_singleele/200423_112331/0000/ReReco_2017B_1.root",
 )
 # rng service for premixing
-process.RandomNumberGeneratorService.CTPPSPreMixProducer = cms.PSet(initialSeed = cms.untracked.uint32(42))
+process.RandomNumberGeneratorService.ctppsPreMixProducer = cms.PSet(initialSeed = cms.untracked.uint32(42))
 
-process.CTPPSPreMixProducer.Sim_CTPPSPixelRecHitTag = cms.InputTag("ctppsDirectProtonSimulation")
-process.CTPPSPreMixProducer.Sim_TotemRPRecHitTag = cms.InputTag("ctppsDirectProtonSimulation")
+process.ctppsPreMixProducer.Sim_CTPPSPixelRecHitTag = cms.InputTag("ctppsDirectProtonSimulation")
+process.ctppsPreMixProducer.Sim_TotemRPRecHitTag = cms.InputTag("ctppsDirectProtonSimulation")
 
 
-process.protonMixingStep = cms.Sequence(process.CTPPSPreMixProducer)
+process.protonMixingStep = cms.Sequence(process.ctppsPreMixProducer)
 
 ## RECO config
 
 # point the track producers to the correct products
-process.ctppsPixelLocalTracks.label = "CTPPSPreMixProducer"
-process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("CTPPSPreMixProducer")
+process.ctppsPixelLocalTracks.label = "ctppsPreMixProducer"
+process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsPreMixProducer")
 
 # remove timing tracks from trackLites, they are not produced by protonPreMix
 process.ctppsLocalTrackLiteProducer.includeDiamonds = False
@@ -64,7 +64,7 @@ process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 def RemoveModules(pr):
   pr.reco_local.remove(pr.ctppsPixelLocalTracks)
   pr.ctppsLocalTrackLiteProducer.includePixels = False
-  pr.CTPPSPreMixProducer.includePixels = False
+  pr.ctppsPreMixProducer.includePixels = False
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017

@@ -25,7 +25,7 @@ CTPPSPreMixProducer::CTPPSPreMixProducer(const edm::ParameterSet &conf)
   }
 
   if (verbosity_ > 0)
-    edm::LogInfo("CTPPSPreMixProducer")
+    edm::LogInfo("PPS")
         << "PU files contain " << puEntries_ << " events";
 }
 
@@ -46,7 +46,7 @@ void CTPPSPreMixProducer::fillDescriptions(
                           edm::InputTag("totemRPRecHitProducer"));
   desc.add<bool>("includePixels", true);
   desc.add<bool>("includeStrips", true);
-  descriptions.add("CTPPSPreMixProducer", desc);
+  descriptions.add("ctppsPreMixProducer", desc);
 }
 
 void CTPPSPreMixProducer::produce(edm::Event &iEvent,
@@ -65,7 +65,7 @@ void CTPPSPreMixProducer::produce(edm::Event &iEvent,
   double entryNumber = CLHEP::RandFlat::shootInt(&engine, 0, puEntries_);
 
   if (verbosity_ > 0) {
-    edm::LogInfo("CTPPSPreMixProducer")
+    edm::LogInfo("PPS")
         << "Picking PU event number: " << entryNumber;
     puFileReader_.PrintEvent(entryNumber);
   }

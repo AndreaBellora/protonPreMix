@@ -11,6 +11,9 @@
 <use name="DataFormats/CTPPSDetId"/>
 <use name="DataFormats/CTPPSReco"/>
 
+<use name="DataFormats/ProtonReco"/>
+<use name="DataFormats/PatCandidates"/>
+
 <use name="protonPreMix/protonPreMix"/>
 
 <library name="protonPreMixprotonPremixPlugins" file="*.cc">
