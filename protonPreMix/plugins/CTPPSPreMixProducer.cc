@@ -37,11 +37,11 @@ void CTPPSPreMixProducer::fillDescriptions(
   desc.addUntracked<int>("Verbosity", 0);
   desc.add<std::vector<std::string>>("PUFilesList", std::vector<std::string>());
   desc.add<edm::InputTag>("Sim_CTPPSPixelRecHitTag",
-                          edm::InputTag("ctppsPixelRecHits"));
+                          edm::InputTag("ctppsDirectProtonSimulation"));
   desc.add<edm::InputTag>("PU_CTPPSPixelRecHitTag",
                           edm::InputTag("ctppsPixelRecHits"));
   desc.add<edm::InputTag>("Sim_TotemRPRecHitTag",
-                          edm::InputTag("totemRPRecHitProducer"));
+                          edm::InputTag("ctppsDirectProtonSimulation"));
   desc.add<edm::InputTag>("PU_TotemRPRecHitTag",
                           edm::InputTag("totemRPRecHitProducer"));
   desc.add<bool>("includePixels", true);
