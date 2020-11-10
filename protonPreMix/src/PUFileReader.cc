@@ -59,19 +59,26 @@ void PUFileReader::PrintEvent(int i) {
       }
       cout << endl;
     }
-  } 
+  }
 }
 
 edm::DetSetVector<CTPPSPixelRecHit> PUFileReader::getPixelRecHitsDsv(int i) {
 
   fwlite::Handle<edm::DetSetVector<CTPPSPixelRecHit>> pixelRecHits;
-
-  if (ev_->to(i)) {
-    pixelRecHits.getByLabel(*ev_, pixelLabel_.data(), pixelInstance_.data());
-    edm::DetSetVector<CTPPSPixelRecHit> pixelRecHitsDsv = *(pixelRecHits.ptr());
-    return pixelRecHitsDsv;
-  } else {
-    edm::LogWarning("PPS") << "Event not found in the PU files";
+  try {
+    if (ev_->to(i)) {
+      pixelRecHits.getByLabel(*ev_, pixelLabel_.data(), pixelInstance_.data());
+      edm::DetSetVector<CTPPSPixelRecHit> pixelRecHitsDsv =
+          *(pixelRecHits.ptr());
+      return pixelRecHitsDsv;
+    } else {
+      edm::LogWarning("PPS") << "Event not found in the PU files";
+      return edm::DetSetVector<CTPPSPixelRecHit>();
+    }
+  } catch (cms::Exception &e) {
+    edm::LogWarning("PPS")
+        << "Careful, exception caught, returning empty collection\n"
+        << e.what();
     return edm::DetSetVector<CTPPSPixelRecHit>();
   }
 }
@@ -79,13 +86,21 @@ edm::DetSetVector<CTPPSPixelRecHit> PUFileReader::getPixelRecHitsDsv(int i) {
 edm::DetSetVector<TotemRPRecHit> PUFileReader::getStripsRecHitsDsv(int i) {
 
   fwlite::Handle<edm::DetSetVector<TotemRPRecHit>> stripsRecHits;
-
-  if (ev_->to(i)) {
-    stripsRecHits.getByLabel(*ev_, stripsLabel_.data(), stripsInstance_.data());
-    edm::DetSetVector<TotemRPRecHit> stripsRecHitsDsv = *(stripsRecHits.ptr());
-    return stripsRecHitsDsv;
-  } else {
-    edm::LogWarning("PPS") << "Event not found in the PU files";
+  try {
+    if (ev_->to(i)) {
+      stripsRecHits.getByLabel(*ev_, stripsLabel_.data(),
+                               stripsInstance_.data());
+      edm::DetSetVector<TotemRPRecHit> stripsRecHitsDsv =
+          *(stripsRecHits.ptr());
+      return stripsRecHitsDsv;
+    } else {
+      edm::LogWarning("PPS") << "Event not found in the PU files";
+      return edm::DetSetVector<TotemRPRecHit>();
+    }
+  } catch (cms::Exception &e) {
+    edm::LogWarning("PPS")
+        << "Careful, exception caught, returning empty collection\n"
+        << e.what();
     return edm::DetSetVector<TotemRPRecHit>();
   }
 }
