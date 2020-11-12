@@ -111,7 +111,7 @@ PPSEfficiencyProducer::PPSEfficiencyProducer(const edm::ParameterSet &conf)
         detId = CTPPSDetId(3, arm, 0, 2);
         map_name = "Strips/" + to_string(year_) + "/" + to_string(year_) +
                    era_ + "/h" + sector + "_" + to_string(year_) + era_ +
-                   "_all_2D_RP" + rpid;
+                   "_RP" + rpid + "_all_2D";
       }else if (year_ == 2017) {
         detId = CTPPSDetId(3, arm, 0, 3);
         map_name = "Strips/" + to_string(year_) + "/" + to_string(year_) +
@@ -151,7 +151,7 @@ PPSEfficiencyProducer::PPSEfficiencyProducer(const edm::ParameterSet &conf)
         detId = CTPPSDetId(3, arm, 0, 3);
         map_name = "Strips/" + to_string(year_) + "/" + to_string(year_) +
                    era_ + "/h" + sector + "_" + to_string(year_) + era_ +
-                   "_all_2D_RP" + rpid;
+                   "_RP" + rpid + "_all_2D";
       }
       if (year_ == 2017) {
         detId = CTPPSDetId(4, arm, 2, 3);
