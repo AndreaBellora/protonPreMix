@@ -25,8 +25,7 @@ CTPPSPreMixProducer::CTPPSPreMixProducer(const edm::ParameterSet &conf)
   }
 
   if (verbosity_ > 0)
-    edm::LogInfo("PPS")
-        << "PU files contain " << puEntries_ << " events";
+    edm::LogInfo("PPS") << "PU files contain " << puEntries_ << " events";
 }
 
 CTPPSPreMixProducer::~CTPPSPreMixProducer() {}
@@ -51,6 +50,7 @@ void CTPPSPreMixProducer::fillDescriptions(
 
 void CTPPSPreMixProducer::produce(edm::Event &iEvent,
                                   const edm::EventSetup &iSetup) {
+  using namespace std;
 
   // Retrieve an event from PU files
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -65,37 +65,50 @@ void CTPPSPreMixProducer::produce(edm::Event &iEvent,
   double entryNumber = CLHEP::RandFlat::shootInt(&engine, 0, puEntries_);
 
   if (verbosity_ > 0) {
-    edm::LogInfo("PPS")
-        << "Picking PU event number: " << entryNumber;
+    edm::LogInfo("PPS") << "Picking PU event number: " << entryNumber;
     puFileReader_.PrintEvent(entryNumber);
   }
 
   if (includePixels_) {
+    // std::cerr << "CHECK 1" << std::endl;
     edm::Handle<edm::DetSetVector<CTPPSPixelRecHit>> simPixelRpRecHits;
     iEvent.getByToken(tokenCTPPSPixelRecHit_, simPixelRpRecHits);
+
     edm::DetSetVector<CTPPSPixelRecHit> pixelsOutput;
 
+    // std::cerr << "CHECK 2" << std::endl;
     edm::DetSetVector<CTPPSPixelRecHit> puPixelRpRecHits =
         puFileReader_.getPixelRecHitsDsv(entryNumber);
 
-    mergePixels(*simPixelRpRecHits, puPixelRpRecHits, pixelsOutput);
+    // std::cerr << "CHECK 3" << std::endl;
+    if(simPixelRpRecHits.isValid())
+      mergePixels(*simPixelRpRecHits, puPixelRpRecHits, pixelsOutput);
 
+    // std::cerr << "CHECK 4" << std::endl;
     iEvent.put(
         std::make_unique<edm::DetSetVector<CTPPSPixelRecHit>>(pixelsOutput));
+    // std::cerr << "CHECK 5" << std::endl;
   }
 
   if (includeStrips_) {
+    // std::cerr << "CHECK 6" << std::endl;
     edm::Handle<edm::DetSetVector<TotemRPRecHit>> simStripsRpRecHits;
     iEvent.getByToken(tokenTotemRPRecHit_, simStripsRpRecHits);
+
     edm::DetSetVector<TotemRPRecHit> stripsOutput;
 
+    // std::cerr << "CHECK 7" << std::endl;
     edm::DetSetVector<TotemRPRecHit> puStripsRpRecHits =
         puFileReader_.getStripsRecHitsDsv(entryNumber);
 
-    mergeStrips(*simStripsRpRecHits, puStripsRpRecHits, stripsOutput);
-
+    // std::cerr << "CHECK 8" << std::endl;
+    if (simStripsRpRecHits.isValid())
+      mergeStrips(*simStripsRpRecHits, puStripsRpRecHits, stripsOutput);
+    
+    // std::cerr << "CHECK 9" << std::endl;
     iEvent.put(
         std::make_unique<edm::DetSetVector<TotemRPRecHit>>(stripsOutput));
+    // std::cerr << "CHECK 10" << std::endl;
   }
 }
 

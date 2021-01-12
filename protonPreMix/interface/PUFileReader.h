@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include "TFile.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/FWLite/interface/ChainEvent.h"
@@ -41,7 +43,7 @@ private:
   std::string pixelInstance_;
   std::string stripsLabel_;
   std::string stripsInstance_;
-
+  int eventNumber_;
 };
 
 #endif
