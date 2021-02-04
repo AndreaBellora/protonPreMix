@@ -24,6 +24,14 @@ CTPPSPreMixProducer::CTPPSPreMixProducer(const edm::ParameterSet &conf)
     produces<edm::DetSetVector<TotemRPRecHit>>();
   }
 
+  std::vector<edm::LuminosityBlockRange> lumiTemp;
+  lumiTemp = conf.getUntrackedParameter<std::vector<edm::LuminosityBlockRange>>(
+      "lumisToProcess");
+  lumisToProcess_.resize(lumiTemp.size());
+  copy(lumiTemp.begin(), lumiTemp.end(), lumisToProcess_.begin());
+
+  puFileReader_.setLumisToProcess(lumisToProcess_);
+
   if (verbosity_ > 0)
     edm::LogInfo("PPS") << "PU files contain " << puEntries_ << " events";
 }
@@ -45,6 +53,8 @@ void CTPPSPreMixProducer::fillDescriptions(
                           edm::InputTag("totemRPRecHitProducer"));
   desc.add<bool>("includePixels", true);
   desc.add<bool>("includeStrips", true);
+  desc.addUntracked<std::vector<edm::LuminosityBlockRange>>(
+      "lumisToProcess", std::vector<edm::LuminosityBlockRange>());
   descriptions.add("ctppsPreMixProducer", desc);
 }
 
@@ -61,55 +71,55 @@ void CTPPSPreMixProducer::produce(edm::Event &iEvent,
            "the service in the configuration file.\n";
   }
 
-  CLHEP::HepRandomEngine &engine = rng->getEngine(iEvent.streamID());
-  double entryNumber = CLHEP::RandFlat::shootInt(&engine, 0, puEntries_);
+  bool isPUinError = false;
+  do {
+    CLHEP::HepRandomEngine &engine = rng->getEngine(iEvent.streamID());
+    double entryNumber = CLHEP::RandFlat::shootInt(&engine, 0, puEntries_);
 
-  if (verbosity_ > 0) {
-    edm::LogInfo("PPS") << "Picking PU event number: " << entryNumber;
-    puFileReader_.PrintEvent(entryNumber);
-  }
+    if (verbosity_ > 0) {
+      edm::LogInfo("PPS") << "Picking PU event number: " << entryNumber;
+    }
+    isPUinError = false;
 
-  if (includePixels_) {
-    // std::cerr << "CHECK 1" << std::endl;
-    edm::Handle<edm::DetSetVector<CTPPSPixelRecHit>> simPixelRpRecHits;
-    iEvent.getByToken(tokenCTPPSPixelRecHit_, simPixelRpRecHits);
+    if (includePixels_) {
+      edm::Handle<edm::DetSetVector<CTPPSPixelRecHit>> simPixelRpRecHits;
+      iEvent.getByToken(tokenCTPPSPixelRecHit_, simPixelRpRecHits);
 
-    edm::DetSetVector<CTPPSPixelRecHit> pixelsOutput;
+      edm::DetSetVector<CTPPSPixelRecHit> pixelsOutput;
 
-    // std::cerr << "CHECK 2" << std::endl;
-    edm::DetSetVector<CTPPSPixelRecHit> puPixelRpRecHits =
-        puFileReader_.getPixelRecHitsDsv(entryNumber);
+      edm::DetSetVector<CTPPSPixelRecHit> puPixelRpRecHits;
+      if (!puFileReader_.getPixelRecHitsDsv(entryNumber, puPixelRpRecHits)) {
+        isPUinError = true;
+      }
 
-    // std::cerr << "CHECK 3" << std::endl;
-    if(simPixelRpRecHits.isValid())
-      mergePixels(*simPixelRpRecHits, puPixelRpRecHits, pixelsOutput);
+      if (simPixelRpRecHits.isValid())
+        mergePixels(*simPixelRpRecHits, puPixelRpRecHits, pixelsOutput);
+      else
+        std::cout << "Pixel rechits collection not valid" << std::endl;
 
-    // std::cerr << "CHECK 4" << std::endl;
-    iEvent.put(
-        std::make_unique<edm::DetSetVector<CTPPSPixelRecHit>>(pixelsOutput));
-    // std::cerr << "CHECK 5" << std::endl;
-  }
+      iEvent.put(
+          std::make_unique<edm::DetSetVector<CTPPSPixelRecHit>>(pixelsOutput));
+    }
 
-  if (includeStrips_) {
-    // std::cerr << "CHECK 6" << std::endl;
-    edm::Handle<edm::DetSetVector<TotemRPRecHit>> simStripsRpRecHits;
-    iEvent.getByToken(tokenTotemRPRecHit_, simStripsRpRecHits);
+    if (includeStrips_) {
+      edm::Handle<edm::DetSetVector<TotemRPRecHit>> simStripsRpRecHits;
+      iEvent.getByToken(tokenTotemRPRecHit_, simStripsRpRecHits);
 
-    edm::DetSetVector<TotemRPRecHit> stripsOutput;
+      edm::DetSetVector<TotemRPRecHit> stripsOutput;
 
-    // std::cerr << "CHECK 7" << std::endl;
-    edm::DetSetVector<TotemRPRecHit> puStripsRpRecHits =
-        puFileReader_.getStripsRecHitsDsv(entryNumber);
+      edm::DetSetVector<TotemRPRecHit> puStripsRpRecHits;
+      if (!puFileReader_.getStripsRecHitsDsv(entryNumber, puStripsRpRecHits))
+        isPUinError = true;
 
-    // std::cerr << "CHECK 8" << std::endl;
-    if (simStripsRpRecHits.isValid())
-      mergeStrips(*simStripsRpRecHits, puStripsRpRecHits, stripsOutput);
-    
-    // std::cerr << "CHECK 9" << std::endl;
-    iEvent.put(
-        std::make_unique<edm::DetSetVector<TotemRPRecHit>>(stripsOutput));
-    // std::cerr << "CHECK 10" << std::endl;
-  }
+      if (simStripsRpRecHits.isValid())
+        mergeStrips(*simStripsRpRecHits, puStripsRpRecHits, stripsOutput);
+      else
+        std::cout << "Strips rechits collection not valid" << std::endl;
+
+      iEvent.put(
+          std::make_unique<edm::DetSetVector<TotemRPRecHit>>(stripsOutput));
+    }
+  } while (isPUinError);
 }
 
 void CTPPSPreMixProducer::mergePixels(

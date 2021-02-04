@@ -6,6 +6,8 @@ from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 # process = cms.Process('TEST', eras.Run2_2017, run2_miniAOD_UL)                   # !!! to adapt depending on the year
 process = cms.Process('TEST', eras.Run2_2018, run2_miniAOD_UL)
 
+# outFile_suffix = "_mix_noEff_SingleMuon_2018A"
+outFile_suffix = "_mix_noEff_EGamma_2018A"
 ## direct proton simulation
 
 process.load('Configuration.EventContent.EventContent_cff')
@@ -74,29 +76,39 @@ process.simProtonStep = cms.Sequence(
 
 process.load("protonPreMix.protonPreMix.ctppsPreMixProducer_cfi")
 process.ctppsPreMixProducer.PUFilesList = cms.vstring(
- "file:/eos/cms/store/group/phys_pps/ReMiniAODSkimForEfficiencies/2018ReMiniAODSkimForEff_SingleEle_2018D/EGamma/ReMiniAODSkimForEff_SingleEle_2018D/200925_172800/0000/ReMiniAOD_SkimForEfficiency_92.root"
+ # 2017 EraB SingleEle
+ # "file:/eos/cms/store/group/phys_pps/ReMiniAODSkimForEfficiencies/2017ReMiniAODSkimForEff_SingleEle_2017B/SingleElectron/ReMiniAODSkimForEff_SingleEle_2017B/201021_082238/0000/ReMiniAOD_SkimForEfficiency_1.root"
+ # 2017 EraD SingleEle
+ # "file:/eos/cms/store/group/phys_pps/ReMiniAODSkimForEfficiencies/2018ReMiniAODSkimForEff_SingleEle_2018D/EGamma/ReMiniAODSkimForEff_SingleEle_2018D/200925_172800/0000/ReMiniAOD_SkimForEfficiency_92.root"
+ # 2018 EraA EGamma
+ "file:/afs/cern.ch/work/a/abellora/Work/PPtoPPWWjets_analysis/newInstall/CMSSW_10_6_17/src/protonPreMix/protonPreMix/test/ReMiniAOD_SkimForEfficiency_EGamma_2018A.root"
+ # 2018 EraA SingleMuon
+ # "file:/afs/cern.ch/work/a/abellora/Work/PPtoPPWWjets_analysis/newInstall/CMSSW_10_6_17/src/protonPreMix/protonPreMix/test/ReMiniAOD_SkimForEfficiency_SingleMuon_2018A.root"
 )
 # rng service for premixing
 process.RandomNumberGeneratorService.ctppsPreMixProducer = cms.PSet(initialSeed = cms.untracked.uint32(42))
 
+process.ctppsPreMixProducer.Verbosity = 0
 process.ctppsPreMixProducer.Sim_CTPPSPixelRecHitTag = cms.InputTag("ctppsDirectProtonSimulation")
 process.ctppsPreMixProducer.Sim_TotemRPRecHitTag = cms.InputTag("ctppsDirectProtonSimulation")
 
 # Disable strips, because they are missing in 2018 PU samples
-process.ctppsPreMixProducer.includeStrips = False
+# process.ctppsPreMixProducer.includeStrips = True # 2016-2017
+process.ctppsPreMixProducer.includeStrips = False # 2018
 process.protonMixingStep = cms.Sequence(process.ctppsPreMixProducer)
 
 ## RECO config
 
 # point the track producers to the correct products
 process.ctppsPixelLocalTracks.label = "ctppsPreMixProducer"
-process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsPreMixProducer")
+# process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsPreMixProducer")
 
 # remove timing tracks from trackLites, they are not produced by protonPreMix
 process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 
 # remove strips tracks from trackLites, they are disabled protonPreMix 
-process.ctppsLocalTrackLiteProducer.includeStrips = False
+# process.ctppsLocalTrackLiteProducer.includeStrips = True # 2016-2017
+process.ctppsLocalTrackLiteProducer.includeStrips = False # 2018
 
 # # reconstruction (if 2016 data, remove modules for RPs which did not exist at that time)
 # def RemoveModules(pr):
@@ -127,14 +139,15 @@ process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPl
   rpId_56_N = process.rpIds.rp_56_N,
   rpId_56_F = process.rpIds.rp_56_F,
 
-  outputFile = cms.string("output_tracks.root")
+  outputFile = cms.string("output_tracks"+outFile_suffix+".root")
 )
 
 # reconstruction plotter (analysis example)
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
   tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
   tagRecoProtonsSingleRP = cms.InputTag("ctppsProtons", "singleRP"),
-  tagRecoProtonsMultiRP = cms.InputTag("ppsEfficiencyProducer", "multiRP"),
+  # tagRecoProtonsMultiRP = cms.InputTag("ppsEfficiencyProducer", "multiRP"),
+  tagRecoProtonsMultiRP = cms.InputTag("ctppsProtons", "multiRP"),
   rpId_45_F = cms.uint32(23),
   rpId_45_N = cms.uint32(3),
   rpId_56_N = cms.uint32(103),
@@ -143,10 +156,14 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
   association_cuts_45 = process.ctppsProtons.association_cuts_45,
   association_cuts_56 = process.ctppsProtons.association_cuts_56,
 
-  outputFile = cms.string("output_protons.root")
+  outputFile = cms.string("output_protons"+outFile_suffix+".root")
 )
 
-
+# lhcInfo plotter (analysis example)
+process.ctppsLHCInfoPlotter = cms.EDAnalyzer("CTPPSLHCInfoPlotter",
+  lhcInfoLabel = cms.string(''),
+  outputFile = cms.string("output_lhcInfo"+outFile_suffix+".root")
+)
 
 # reconstruction sequence
 process.recoStep = cms.Sequence(
@@ -179,19 +196,26 @@ process.MessageLogger.cout = cms.untracked.PSet(
   ),
 )
 process.MessageLogger.statistics = cms.untracked.vstring()
+process.options = cms.untracked.PSet(
+      wantSummary = cms.untracked.bool(True),
+)
         
 
 # number of events
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(1000)
+  input = cms.untracked.int32(10000)
 )
-
-# output module
-process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("test.root"),
-    outputCommands = cms.untracked.vstring("keep *",
-    )
-)
+# process.theout = cms.OutputModule( "PoolOutputModule",
+#                                    # SelectEvents = cms.untracked.PSet(
+#                                    #     SelectEvents = cms.vstring(
+#                                    #         'hltsel'
+#                                    #     )
+#                                    # ),
+#      outputCommands = cms.untracked.vstring("keep *"),
+#     # fileName = cms.untracked.string('ReMiniAOD_SkimForEfficiency_SingleMuon_2017B.root')
+#     fileName = cms.untracked.string('output_data.root')
+#     # fileName = cms.untracked.string('ReMiniAOD_SkimForEfficiency_EGamma_2018A.root')
+# )
 
 process.path = cms.Path(
   # proton simulation
@@ -204,11 +228,12 @@ process.path = cms.Path(
   * process.recoStep
 
   # add efficiency
-  * process.ppsEfficiencyProducer
+  # * process.ppsEfficiencyProducer 
 
   # example of analysis
+  * process.ctppsLHCInfoPlotter
   * process.ctppsTrackDistributionPlotter
   * process.ctppsProtonReconstructionPlotter
 )
 
-process.endPath = cms.EndPath(process.output)
+# process.outpath = cms.EndPath(process.theout)
