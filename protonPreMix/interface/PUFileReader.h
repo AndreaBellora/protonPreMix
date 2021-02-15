@@ -47,6 +47,7 @@ private:
 
   edm::InputTag pixelTag_;
   edm::InputTag stripsTag_;
+  int errorEventNumber_;
 
   std::vector<edm::LuminosityBlockRange> jsonVector_;
 };
@@ -57,7 +58,8 @@ bool PUFileReader::getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv,
 
   fwlite::Handle < edm::DetSetVector<T>> recHits;
   edm::InputTag recHitInputTag;
-
+  if(ev_->eventIndex() == errorEventNumber_)
+    edm::LogWarning("PPS") << "An error was already caught for this event, skipping";
   if (subDetector == CTPPSDetId::SubDetector::sdTrackingStrip)
     recHitInputTag = stripsTag_;
   else if (subDetector == CTPPSDetId::SubDetector::sdTrackingPixel)
@@ -83,6 +85,7 @@ bool PUFileReader::getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv,
         << subDetector << "\n"
         << "Find the exception below:\n"
         << e.what();
+    errorEventNumber_ = ev_->eventIndex();
     return false;
   }
 }

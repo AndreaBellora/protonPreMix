@@ -74,6 +74,17 @@ process.load('Configuration.EventContent.EventContent_cff')
 # process.ctppsBeamParametersESSource.vtxOffsetY45 = -0.0692861
 # process.ctppsBeamParametersESSource.vtxOffsetZ45 = -7.89895
 
+# process.load("CalibPPS.ESProducers.ctppsLHCInfoRandomXangleESSource_cfi")
+
+# process.ctppsLHCInfoRandomXangleESSource.generateEveryNEvents = 1
+# process.ctppsLHCInfoRandomXangleESSource.xangleHistogramFile = "output_lhcInfo_EGamma_2018B2.root"
+
+# process.ctppsLHCInfoRandomXangleESSource.xangleHistogramObject = "h_xangle"
+# process.ctppsLHCInfoRandomXangleESSource.beamEnergy = 6500.
+# process.ctppsLHCInfoRandomXangleESSource.betaStar = 0.40
+
+# process.esPreferLHCInfo = cms.ESPrefer("CTPPSLHCInfoRandomXangleESSource", "ctppsLHCInfoRandomXangleESSource")
+
 # # processing path                                                                                                                                                                                        
 # process.simProtonStep = cms.Sequence(
 #     process.beamDivergenceVtxGenerator
@@ -94,7 +105,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 # # process.ctppsLocalTrackLiteProducer.includeStrips = True # 2016-2017
 # process.ctppsLocalTrackLiteProducer.includeStrips = False # 2018
 
-# reconstruction sequence
+# # reconstruction sequence
 # process.recoStep = cms.Sequence(
 #   process.reco_local
 #   * process.ctppsProtons

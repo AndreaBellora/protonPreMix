@@ -1,9 +1,9 @@
 #include "protonPreMix/protonPreMix/interface/PUFileReader.h"
 
-
-PUFileReader::PUFileReader(std::vector<std::string> fileNames, edm::InputTag pixelTag,
-                           edm::InputTag stripsTag)
-    : fileNames_(fileNames), pixelTag_(pixelTag), stripsTag_(stripsTag) {
+PUFileReader::PUFileReader(std::vector<std::string> fileNames,
+                           edm::InputTag pixelTag, edm::InputTag stripsTag)
+    : fileNames_(fileNames), pixelTag_(pixelTag), stripsTag_(stripsTag),
+      errorEventNumber_(-1) {
 
   for (auto &fileName : fileNames_) {
     if (fileName.find("file:") == std::string::npos &&
