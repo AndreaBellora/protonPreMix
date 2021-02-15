@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-#process = cms.Process('TEST', eras.Run2_2016, run2_miniAOD_UL)
-# process = cms.Process('TEST', eras.Run2_2017, run2_miniAOD_UL)                   # !!! to adapt depending on the year
-process = cms.Process('TEST', eras.Run2_2018, run2_miniAOD_UL)
+process = cms.Process('TEST', ctpps_2018, run2_miniAOD_UL)
 
 # outFile_suffix = "_mix_noEff_SingleMuon_2018A"
 outFile_suffix = "_mix_noEff_EGamma_2018A"
@@ -12,11 +11,22 @@ outFile_suffix = "_mix_noEff_EGamma_2018A"
 
 process.load('Configuration.EventContent.EventContent_cff')
 
-# import Validation.CTPPS.simu_config.year_2017_preTS2_cff as config               # !!! to adapt depending on the year
-# process.load("Validation.CTPPS.simu_config.year_2017_preTS2_cff")                # !!! to adapt depending on the y
 import Validation.CTPPS.simu_config.year_2018_cff as config               # !!! to adapt depending on the year
 process.load("Validation.CTPPS.simu_config.year_2018_cff")                # !!! to adapt depending on the y
 config.SetDefaults(process)
+
+process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_preTS1.xml"]
+process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_preTS1.xml"]
+# process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_TS1_TS2.xml"]
+# process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_TS1_TS2.xml"]
+# process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_postTS2.xml"]
+# process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_postTS2.xml"]
+
+process.ctppsOpticalFunctionsESSource.configuration[0].opticalFunctions = cms.VPSet(
+  cms.PSet( xangle = cms.double(120), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2018/version6/120urad.root") ),
+  cms.PSet( xangle = cms.double(130), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2018/version6/130urad.root") ),
+  cms.PSet( xangle = cms.double(140), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2018/version6/140urad.root") )
+)
 
 # # override LHCInfo source
 # process.load("CalibPPS.ESProducers.ctppsLHCInfoRandomXangleESSource_cfi")
@@ -93,7 +103,6 @@ process.ctppsPreMixProducer.Sim_CTPPSPixelRecHitTag = cms.InputTag("ctppsDirectP
 process.ctppsPreMixProducer.Sim_TotemRPRecHitTag = cms.InputTag("ctppsDirectProtonSimulation")
 
 # Disable strips, because they are missing in 2018 PU samples
-# process.ctppsPreMixProducer.includeStrips = True # 2016-2017
 process.ctppsPreMixProducer.includeStrips = False # 2018
 process.protonMixingStep = cms.Sequence(process.ctppsPreMixProducer)
 
@@ -109,17 +118,6 @@ process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 # remove strips tracks from trackLites, they are disabled protonPreMix 
 # process.ctppsLocalTrackLiteProducer.includeStrips = True # 2016-2017
 process.ctppsLocalTrackLiteProducer.includeStrips = False # 2018
-
-# # reconstruction (if 2016 data, remove modules for RPs which did not exist at that time)
-# def RemoveModules(pr):
-#   pr.reco_local.remove(pr.ctppsPixelLocalTracks)
-#   pr.ctppsLocalTrackLiteProducer.includePixels = False
-#   pr.ctppsPreMixProducer.includePixels = False
-
-# from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-# from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
-# from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
-# (eras.ctpps_2016 & ~ctpps_2017 & ~ctpps_2018).toModify(process, RemoveModules)
 
 process.load("protonPreMix.protonPreMix.ppsEfficiencyProducer_cfi")
 
