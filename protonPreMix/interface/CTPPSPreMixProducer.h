@@ -54,8 +54,8 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemRPRecHit>> tokenTotemRPRecHit_;
   std::vector<edm::LuminosityBlockRange> lumisToProcess_;
 
-  void mergePixels(const edm::DetSetVector<CTPPSPixelRecHit> &simRPRecHits, const edm::DetSetVector<CTPPSPixelRecHit> &puRPRecHits, edm::DetSetVector<CTPPSPixelRecHit> &output);
-  void mergeStrips(const edm::DetSetVector<TotemRPRecHit> &simRPRecHits, const edm::DetSetVector<TotemRPRecHit> &puRPRecHits, edm::DetSetVector<TotemRPRecHit> &output);
+  template <class T>
+  void merge(const edm::DetSetVector<T> &simRPRecHits, const edm::DetSetVector<T> &puRPRecHits, edm::DetSetVector<T> &output);
 };
 
 #endif
