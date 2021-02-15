@@ -127,17 +127,11 @@ void CTPPSPreMixProducer::merge(const edm::DetSetVector<T> &simRecHits,
                                 edm::DetSetVector<T> &output) {
 
   // Merge the two inputs
-  for (auto simRecHits_ds : simRecHits) {
-    edm::DetSet<T> &outputRecHits_ds = output.find_or_insert(simRecHits_ds.id);
-    for (auto simRecHit : simRecHits_ds.data) {
-      outputRecHits_ds.push_back(simRecHit);
-    }
-  }
-
-  for (auto puRecHits_ds : puRecHits) {
-    edm::DetSet<T> &outputRecHits_ds = output.find_or_insert(puRecHits_ds.id);
-    for (auto puRecHit : puRecHits_ds.data) {
-      outputRecHits_ds.push_back(puRecHit);
+for (const auto &collection : {simRecHits, puRecHits} )
+  for (const auto &recHits_ds : collection) {
+    edm::DetSet<T> &outputRecHits_ds = output.find_or_insert(recHits_ds.id);
+    for (auto recHit : recHits_ds.data) {
+      outputRecHits_ds.push_back(recHit);
     }
   }
 }
