@@ -60,7 +60,6 @@ void CTPPSPreMixProducer::fillDescriptions(
 
 void CTPPSPreMixProducer::produce(edm::Event &iEvent,
                                   const edm::EventSetup &iSetup) {
-  using namespace std;
 
   // Retrieve an event from PU files
   const edm::Service<edm::RandomNumberGenerator> rng;
@@ -98,8 +97,6 @@ void CTPPSPreMixProducer::produce(edm::Event &iEvent,
 
       if (simPixelRpRecHits.isValid())
         merge(*simPixelRpRecHits, puPixelRpRecHits, pixelsOutput);
-      else
-        std::cout << "Pixel rechits collection not valid" << std::endl;
     }
 
     if (includeStrips_) {
@@ -113,8 +110,6 @@ void CTPPSPreMixProducer::produce(edm::Event &iEvent,
 
       if (simStripsRpRecHits.isValid())
         merge(*simStripsRpRecHits, puStripsRpRecHits, stripsOutput);
-      else
-        std::cout << "Strips rechits collection not valid" << std::endl;
     }
   } while (isPUinError);
 

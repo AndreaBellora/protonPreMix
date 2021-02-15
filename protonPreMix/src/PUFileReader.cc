@@ -1,18 +1,17 @@
 #include "protonPreMix/protonPreMix/interface/PUFileReader.h"
 
-using namespace std;
 
-PUFileReader::PUFileReader(vector<string> fileNames, edm::InputTag pixelTag,
+PUFileReader::PUFileReader(std::vector<std::string> fileNames, edm::InputTag pixelTag,
                            edm::InputTag stripsTag)
     : fileNames_(fileNames), pixelTag_(pixelTag), stripsTag_(stripsTag) {
 
   for (auto &fileName : fileNames_) {
-    if (fileName.find("file:") == string::npos &&
-        fileName.find("root:") == string::npos) {
+    if (fileName.find("file:") == std::string::npos &&
+        fileName.find("root:") == std::string::npos) {
       fileName = "root://cms-xrd-global.cern.ch//" + fileName;
     }
   }
-  ev_ = make_unique<fwlite::ChainEvent>(fileNames_);
+  ev_ = std::make_unique<fwlite::ChainEvent>(fileNames_);
 }
 
 bool PUFileReader::getAndCheckEvent(const int i) {
@@ -42,7 +41,7 @@ bool PUFileReader::jsonContainsEvent(const edm::EventBase &event) {
   bool (*funcPtr)(edm::LuminosityBlockRange const &,
                   edm::LuminosityBlockID const &) = &edm::contains;
   edm::LuminosityBlockID lumiID(event.id().run(), event.id().luminosityBlock());
-  vector<edm::LuminosityBlockRange>::const_iterator iter = find_if(
+  std::vector<edm::LuminosityBlockRange>::const_iterator iter = find_if(
       jsonVector_.begin(), jsonVector_.end(), boost::bind(funcPtr, _1, lumiID));
   return jsonVector_.end() != iter;
 }
