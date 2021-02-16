@@ -58,8 +58,11 @@ bool PUFileReader::getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv,
 
   fwlite::Handle < edm::DetSetVector<T>> recHits;
   edm::InputTag recHitInputTag;
-  if(ev_->eventIndex() == errorEventNumber_)
+  if(ev_->eventIndex() == errorEventNumber_){
     edm::LogWarning("PPS") << "An error was already caught for this event, skipping";
+    return false;
+  }
+
   if (subDetector == CTPPSDetId::SubDetector::sdTrackingStrip)
     recHitInputTag = stripsTag_;
   else if (subDetector == CTPPSDetId::SubDetector::sdTrackingPixel)
