@@ -6,22 +6,25 @@
 #ifndef PUFileReader_H
 #define PUFileReader_H
 
-#include <iostream>
 #include <boost/bind.hpp>
+#include <iostream>
 
 #include "TFile.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
+
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
@@ -30,27 +33,72 @@ public:
   PUFileReader(std::vector<std::string> fileNames, edm::InputTag pixelTag,
                edm::InputTag stripsTag);
   ~PUFileReader() {}
-  void PrintEvent(int i);
-  inline int GetEntries() { return ev_->size(); };
-  bool getPixelRecHitsDsv(int i,edm::DetSetVector<CTPPSPixelRecHit> &pixelRecHitsDsv);
-  bool getStripsRecHitsDsv(int i,edm::DetSetVector<TotemRPRecHit> &stripsRecHitsDsv);
-  inline void setLumisToProcess(std::vector<edm::LuminosityBlockRange> jsonVector){jsonVector_ = jsonVector;};
+  inline int getEntries() { return ev_->size(); };
+  bool getAndCheckEvent(const int i);
+  template <class T>
+  bool getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv,
+                     CTPPSDetId::SubDetector subDetector);
+  bool getProtonCollection(reco::ForwardProtonCollection &protonCollection);
+  inline void
+  setLumisToProcess(std::vector<edm::LuminosityBlockRange> jsonVector) {
+    jsonVector_ = jsonVector;
+  };
+  inline void setProtonTag(edm::InputTag tag) { protonTag_ = tag; };
 
 private:
   bool jsonContainsEvent(const edm::EventBase &event);
 
   std::vector<std::string> fileNames_;
   std::unique_ptr<fwlite::ChainEvent> ev_;
-  
+
   edm::InputTag pixelTag_;
   edm::InputTag stripsTag_;
+  edm::InputTag protonTag_;
+  int errorEventNumber_;
 
-  std::string pixelLabel_;
-  std::string pixelInstance_;
-  std::string stripsLabel_;
-  std::string stripsInstance_;
   std::vector<edm::LuminosityBlockRange> jsonVector_;
-  int eventNumber_;
 };
+
+template <class T>
+bool PUFileReader::getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv,
+                                 CTPPSDetId::SubDetector subDetector) {
+
+  fwlite::Handle<edm::DetSetVector<T>> recHits;
+  edm::InputTag recHitInputTag;
+  if (ev_->eventIndex() == errorEventNumber_) {
+    edm::LogWarning("PPS")
+        << "An error was already caught for this event, skipping";
+    return false;
+  }
+
+  if (subDetector == CTPPSDetId::SubDetector::sdTrackingStrip)
+    recHitInputTag = stripsTag_;
+  else if (subDetector == CTPPSDetId::SubDetector::sdTrackingPixel)
+    recHitInputTag = pixelTag_;
+  else
+    throw cms::Exception("PPS")
+        << "PPS subdetector type not compatible with RecHit mixing";
+
+  try {
+    recHits.getByLabel(*ev_, recHitInputTag.label().data(),
+                       recHitInputTag.instance().data());
+
+    if (recHits.isValid()) {
+      recHitsDsv = edm::DetSetVector<T>(*(recHits.ptr()));
+      return true;
+    } else {
+      edm::LogWarning("PPS") << "RecHit pointer is not valid";
+      return false;
+    }
+  } catch (cms::Exception &e) {
+    edm::LogWarning("PPS")
+        << "Exception caught while getting RecHit vector for subDetector "
+        << subDetector << "\n"
+        << "Find the exception below:\n"
+        << e.what();
+    errorEventNumber_ = ev_->eventIndex();
+    return false;
+  }
+}
 
 #endif

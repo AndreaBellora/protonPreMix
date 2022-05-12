@@ -3,8 +3,8 @@
  * Author: A. Bellora - INFN Torino
  *
  *************************************************************/
-#ifndef protonPreMix_CTPPSPreMixProducer_H
-#define protonPreMix_CTPPSPreMixProducer_H
+#ifndef protonPreMix_CTPPSProtonMixer_H
+#define protonPreMix_CTPPSProtonMixer_H
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -17,22 +17,20 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-#include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "protonPreMix/protonPreMix/interface/PUFileReader.h"
 
-class CTPPSPreMixProducer : public edm::stream::EDProducer<> {
+class CTPPSProtonMixer : public edm::stream::EDProducer<> {
 
 public:
-  explicit CTPPSPreMixProducer(const edm::ParameterSet &param);
+  explicit CTPPSProtonMixer(const edm::ParameterSet &param);
 
-  ~CTPPSPreMixProducer() override;
+  ~CTPPSProtonMixer() override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -41,21 +39,16 @@ public:
 private:
   int verbosity_;
 
-  bool includePixels_,includeStrips_;
-
-  edm::InputTag simPixelSrc_, puPixelSrc_;
-  edm::InputTag simStripsSrc_, puStripsSrc_;
+  edm::InputTag simProtonsSrc_, puProtonsSrc_;
 
   PUFileReader puFileReader_;
   std::vector<std::string> puFilesList_;
   int puEntries_;
 
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
-  edm::EDGetTokenT<edm::DetSetVector<TotemRPRecHit>> tokenTotemRPRecHit_;
+  edm::EDGetTokenT<reco::ForwardProtonCollection> tokenProtons_;
   std::vector<edm::LuminosityBlockRange> lumisToProcess_;
 
-  template <class T>
-  void merge(const edm::DetSetVector<T> &simRPRecHits, const edm::DetSetVector<T> &puRPRecHits, edm::DetSetVector<T> &output);
+  void merge(const reco::ForwardProtonCollection &simProtons, const reco::ForwardProtonCollection &puProtons, reco::ForwardProtonCollection &output);
 };
 
 #endif
