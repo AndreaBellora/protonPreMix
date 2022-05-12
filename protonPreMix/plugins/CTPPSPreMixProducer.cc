@@ -5,14 +5,12 @@ CTPPSPreMixProducer::CTPPSPreMixProducer(const edm::ParameterSet &conf)
       includePixels_(conf.getParameter<bool>("includePixels")),
       includeStrips_(conf.getParameter<bool>("includeStrips")),
       simPixelSrc_(conf.getParameter<edm::InputTag>("Sim_CTPPSPixelRecHitTag")),
-
+      puPixelSrc_(conf.getParameter<edm::InputTag>("PU_CTPPSPixelRecHitTag")),
       simStripsSrc_(conf.getParameter<edm::InputTag>("Sim_TotemRPRecHitTag")),
+      puStripsSrc_(conf.getParameter<edm::InputTag>("PU_TotemRPRecHitTag")),
       puFileReader_(conf.getParameter<std::vector<std::string>>("PUFilesList"),
-                    puPixelSrc_ = conf.getParameter<edm::InputTag>(
-                        "PU_CTPPSPixelRecHitTag"),
-                    puStripsSrc_ = conf.getParameter<edm::InputTag>(
-                        "PU_TotemRPRecHitTag")),
-      puEntries_(puFileReader_.GetEntries()) {
+                    puPixelSrc_, puStripsSrc_),
+      puEntries_(puFileReader_.getEntries()) {
   if (includePixels_) {
     tokenCTPPSPixelRecHit_ =
         consumes<edm::DetSetVector<CTPPSPixelRecHit>>(simPixelSrc_);
@@ -127,13 +125,13 @@ void CTPPSPreMixProducer::merge(const edm::DetSetVector<T> &simRecHits,
                                 edm::DetSetVector<T> &output) {
 
   // Merge the two inputs
-for (const auto &collection : {simRecHits, puRecHits} )
-  for (const auto &recHits_ds : collection) {
-    edm::DetSet<T> &outputRecHits_ds = output.find_or_insert(recHits_ds.id);
-    for (auto recHit : recHits_ds.data) {
-      outputRecHits_ds.push_back(recHit);
+  for (const auto &collection : {simRecHits, puRecHits})
+    for (const auto &recHits_ds : collection) {
+      edm::DetSet<T> &outputRecHits_ds = output.find_or_insert(recHits_ds.id);
+      for (auto recHit : recHits_ds.data) {
+        outputRecHits_ds.push_back(recHit);
+      }
     }
-  }
 }
 
 // define this as a plugin

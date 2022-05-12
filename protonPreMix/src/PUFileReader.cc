@@ -45,3 +45,33 @@ bool PUFileReader::jsonContainsEvent(const edm::EventBase &event) {
       jsonVector_.begin(), jsonVector_.end(), boost::bind(funcPtr, _1, lumiID));
   return jsonVector_.end() != iter;
 }
+
+bool PUFileReader::getProtonCollection(reco::ForwardProtonCollection &protonCollection) {
+
+  fwlite::Handle < reco::ForwardProtonCollection> protons;
+
+  if(ev_->eventIndex() == errorEventNumber_){
+    edm::LogWarning("PPS") << "An error was already caught for this event, skipping";
+    return false;
+  }
+
+  try {
+    protons.getByLabel(*ev_, protonTag_.label().data(),
+                       protonTag_.instance().data());
+
+    if (protons.isValid()) {
+      protonCollection = reco::ForwardProtonCollection(*(protons.ptr()));
+      return true;
+    } else {
+      edm::LogWarning("PPS") << "Proton pointer is not valid";
+      return false;
+    }
+  } catch (cms::Exception &e) {
+    edm::LogWarning("PPS")
+        << "Exception caught while getting proton collection" << "\n"
+        << "Find the exception below:\n"
+        << e.what();
+    errorEventNumber_ = ev_->eventIndex();
+    return false;
+  }
+}

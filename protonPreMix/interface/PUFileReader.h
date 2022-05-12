@@ -23,6 +23,9 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
+
 #include "FWCore/Common/interface/TriggerNames.h"
 
 class PUFileReader {
@@ -30,14 +33,17 @@ public:
   PUFileReader(std::vector<std::string> fileNames, edm::InputTag pixelTag,
                edm::InputTag stripsTag);
   ~PUFileReader() {}
-  inline int GetEntries() { return ev_->size(); };
+  inline int getEntries() { return ev_->size(); };
   bool getAndCheckEvent(const int i);
   template <class T>
-  bool getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv, CTPPSDetId::SubDetector subDetector);
+  bool getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv,
+                     CTPPSDetId::SubDetector subDetector);
+  bool getProtonCollection(reco::ForwardProtonCollection &protonCollection);
   inline void
   setLumisToProcess(std::vector<edm::LuminosityBlockRange> jsonVector) {
     jsonVector_ = jsonVector;
   };
+  inline void setProtonTag(edm::InputTag tag) { protonTag_ = tag; };
 
 private:
   bool jsonContainsEvent(const edm::EventBase &event);
@@ -47,6 +53,7 @@ private:
 
   edm::InputTag pixelTag_;
   edm::InputTag stripsTag_;
+  edm::InputTag protonTag_;
   int errorEventNumber_;
 
   std::vector<edm::LuminosityBlockRange> jsonVector_;
@@ -56,10 +63,11 @@ template <class T>
 bool PUFileReader::getRecHitsDsv(edm::DetSetVector<T> &recHitsDsv,
                                  CTPPSDetId::SubDetector subDetector) {
 
-  fwlite::Handle < edm::DetSetVector<T>> recHits;
+  fwlite::Handle<edm::DetSetVector<T>> recHits;
   edm::InputTag recHitInputTag;
-  if(ev_->eventIndex() == errorEventNumber_){
-    edm::LogWarning("PPS") << "An error was already caught for this event, skipping";
+  if (ev_->eventIndex() == errorEventNumber_) {
+    edm::LogWarning("PPS")
+        << "An error was already caught for this event, skipping";
     return false;
   }
 

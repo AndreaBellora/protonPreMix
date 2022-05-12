@@ -6,7 +6,7 @@ from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 process = cms.Process('TEST', ctpps_2018, run2_miniAOD_UL)
 
 # outFile_suffix = "_mix_noEff_SingleMuon_2018A"
-outFile_suffix = "_EGamma_2018B2"
+outFile_suffix = "_pileup_EGamma_2018B2"
 ## direct proton simulation
 
 process.load('Configuration.EventContent.EventContent_cff')
@@ -17,6 +17,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 # process.load("Validation.CTPPS.simu_config.year_2018_cff")                # !!! to adapt depending on the y
 # config.SetDefaults(process)
 
+# # process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_preTS1.xml"]
+# # process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_preTS1.xml"]
 # process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_TS1_TS2.xml"]
 # process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = ["protonPreMix/protonPreMix/test/PPS_2018_Alignments/2018_TS1_TS2.xml"]
 
@@ -77,11 +79,12 @@ process.load('Configuration.EventContent.EventContent_cff')
 # process.load("CalibPPS.ESProducers.ctppsLHCInfoRandomXangleESSource_cfi")
 
 # process.ctppsLHCInfoRandomXangleESSource.generateEveryNEvents = 1
-# process.ctppsLHCInfoRandomXangleESSource.xangleHistogramFile = "output_lhcInfo_EGamma_2018B2.root"
+# # process.ctppsLHCInfoRandomXangleESSource.xangleHistogramFile = "output_lhcInfo_EGamma_2018A.root"
+# process.ctppsLHCInfoRandomXangleESSource.xangleHistogramFile = "output_lhcInfo_pileup_EGamma_2018B2.root"
 
 # process.ctppsLHCInfoRandomXangleESSource.xangleHistogramObject = "h_xangle"
 # process.ctppsLHCInfoRandomXangleESSource.beamEnergy = 6500.
-# process.ctppsLHCInfoRandomXangleESSource.betaStar = 0.40
+# process.ctppsLHCInfoRandomXangleESSource.betaStar = 0.30
 
 # process.esPreferLHCInfo = cms.ESPrefer("CTPPSLHCInfoRandomXangleESSource", "ctppsLHCInfoRandomXangleESSource")
 
@@ -120,6 +123,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v28')
 process.load('RecoCTPPS.Configuration.recoCTPPS_cff')
 # end for data
+
 print("Association cuts 45")
 print(process.ctppsProtons.association_cuts_45)
 print("Association cuts 56")
@@ -168,6 +172,7 @@ inputFiles = cms.untracked.vstring( *fileList)
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(inputFiles),
+  # fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/a/abellora/Work/PPtoPPWWjets_analysis/newInstall/CMSSW_10_6_17/src/protonPreMix/protonPreMix/test/ReMiniAOD_SkimForEfficiency_EGamma_2018A.root'),
 
   dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
 
@@ -180,6 +185,7 @@ process.source = cms.Source("PoolSource",
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(filename = "/eos/project-c/ctpps/Operations/DataExternalConditions/2018/CMSgolden_2RPGood_anyarms_EraB2.json").getVLuminosityBlockRange()
+# process.source.lumisToProcess = LumiList.LumiList(filename = "/eos/project-c/ctpps/Operations/DataExternalConditions/2018/CMSgolden_2RPGood_anyarms_EraA.json").getVLuminosityBlockRange()
     
 # add some logs
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -188,7 +194,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
   threshold = cms.untracked.string('INFO'),
   FwkReport = cms.untracked.PSet(
     optionalPSet = cms.untracked.bool(True),
-    reportEvery = cms.untracked.int32(10),
+    reportEvery = cms.untracked.int32(1000),
     limit = cms.untracked.int32(50000000)
   ),
 )

@@ -44,8 +44,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  double maxDelta_xi = 0.1;
-  double maxDelta_t = 0.7;
+  double maxDelta_xi = 0.02;
+  double maxDelta_t = 0.5;
   int surviving_protons = 0;
   int recoProton_counter = 0;
   int matches_counter = 0;
